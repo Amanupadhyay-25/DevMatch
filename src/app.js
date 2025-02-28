@@ -1,16 +1,34 @@
 const express=require("express");
 const app=express();
-app.listen(3000);
+const connectDB=require("./config/database")
+exports.app = app;
+const User=require("./models/user");
 
 
-app.use("/khushi",(req,res)=>{
-    res.send("Hello this side from server smjhee...ok bro");
-});
+app.post("/signup", async (req,res) => {
+    const user = new User({
+        name: 'Khushi Sharma',
+        email: 'khushi@gmail.com'
+    })
+    await user.save();
+    res.send("User created successfully");
+})
 
-app.use("/Aman",(req,res)=>{
-    res.send("Hello from Aman Side !!");
-});
+connectDB()
+.then(()=>{
+    console.log("DB is connected successfully");
+    app.listen(3000,()=>{
+        console.log("Server is successfully listening on 7777");
+    });
+}).catch((err)=>{
+    console.log("Failed to connect Database");
+})
 
-app.use("/",(req,res)=>{
-    res.send("Hello this side Khushieee....")
-});
+
+
+
+
+
+
+
+
