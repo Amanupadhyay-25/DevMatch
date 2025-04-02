@@ -3,13 +3,57 @@ const app=express();
 const connectDB=require("./config/database")
 exports.app = app;
 const User=require("./models/user");
+const {validateSignUpdata} = require("./utils/validation");
+const bcrypt = require("bcrypt");
 
 app.use(express.json());
 app.post("/signup", async (req,res) => {
-    user = new User(req.body);
-    await user.save();
-    res.send("User created successfully");
+    try{
+        //Validation of Data 
+        validateSignUpdata(req);
+
+        //Encrypt the Password
+        const { name , age, email , password} = req.body;
+        const Passwordhash = await bcrypt.hash(password,10);
+        console.log(Passwordhash);
+
+
+        user = new User({
+            name,
+            email,
+            age,
+            password : Passwordhash
+        });
+
+        await user.save();
+        res.send("User created successfully");
+    }
+    catch(err){
+        res.status(400).send(" ERROR : " + err.message);
+    }
+    
 })
+
+app.post("/login" , async (req,res)=>{
+    try{
+    const { email,password} = req.body;
+    const user = await User.findOne({email : email });
+        if(!user){
+            throw new Error("InValid crediential");
+    }
+
+    //Comparing the Password
+    const isPasswordvalid = await bcrypt.compare(password,user.password);
+    if(isPasswordvalid){
+        res.send("User logged in Successfully ");
+    }else{
+        throw new Error("InValid Crediential");
+    }
+}catch(err){
+    res.status(400).send("ERROR:"+err.message);
+}
+})
+
 
 app.use(express.json());
 app.get("/user", async (req,res)=>{
@@ -37,8 +81,7 @@ app.patch("/user" , async (req,res)=>{
     const userId = req.body.userId;
     const data= req.data;
     try{
-        const user = await User.findByIdAndUpdate(userId,{name : "gautam gambhir" , email : "gautam@gmail.com"},{runValidators:true});
-        res.send(" Yes data is updated Successfully ");
+     const Allowed_field = ["about" , skill]
     }catch(err){
         app.status(404).send("User not found");
     }
@@ -48,7 +91,7 @@ connectDB()
 .then(()=>{
     console.log("DB is connected successfully");
     app.listen(3000,()=>{
-        console.log("Server is successfully listening on 7777");
+        console.log("Server is successfully listening on 3000   ");
     });
 }).catch((err)=>{
     console.log("Failed to connect Database");

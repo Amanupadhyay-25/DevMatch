@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+ const validator=require("validator");
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -11,17 +12,27 @@ const userSchema = new mongoose.Schema({
             validator: function (value) {
                 return value >= 18 && value <= 65;  // Ensuring age is between 18 and 65
             },
-            message: "User age must be between 18 and 65",
+            message: "Sahi age daalo",
         },
     },
     email: {
         type: String,
         required: true,
+        validate: {
+            validator: (value) => {
+                return validator.isEmail(value);
+            },
+            message: "Invalid Email"
+        }
     },
+    
     password: {
         type: String,
-        required: true,
+        required: true
     },
+    skill : {
+        type : String
+    }
 },{
     timestamps : true,
 });
