@@ -5,8 +5,12 @@ exports.app = app;
 const User=require("./models/user");
 const {validateSignUpdata} = require("./utils/validation");
 const bcrypt = require("bcrypt");
+const cookieParser = require("cookie-parser");
+var Jwt = require("jsonwebtoken");
+const {userAuth} = require("./middlewares/auth");
 
 app.use(express.json());
+app.use(cookieParser());
 app.post("/signup", async (req,res) => {
     try{
         //Validation of Data 
@@ -43,8 +47,13 @@ app.post("/login" , async (req,res)=>{
     }
 
     //Comparing the Password
-    const isPasswordvalid = await bcrypt.compare(password,user.password);
+    const isPasswordvalid = await user.validatePassword(password);
+    
     if(isPasswordvalid){
+        // creating token
+        const token = await user.getJWT();
+        //Adding token to cookie and send back to client along with response
+        res.cookie("token" , token,{expires:new Date(Date.now()+ 8*360000),httpOnly:true});
         res.send("User logged in Successfully ");
     }else{
         throw new Error("InValid Crediential");
@@ -52,6 +61,15 @@ app.post("/login" , async (req,res)=>{
 }catch(err){
     res.status(400).send("ERROR:"+err.message);
 }
+})
+
+app.get("/profile" , userAuth, async (req,res)=>{
+     try {
+        const user = req.user;
+        res.send(user);
+     }catch(err){
+        res.status(400).send("ERROR : "+ err.message);
+     }
 })
 
 
