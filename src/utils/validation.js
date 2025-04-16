@@ -1,16 +1,43 @@
-var validator = require("validator");
-const validateSignUpdata = (req)=>{
-     const { name , email, password} = req.body;
+const validator = require("validator");
 
-     if(!name){
-        throw new Error("Name is not valid ");
-     }
-     else if ( name.length<4 || name.length>50){
-        throw new Error("Name length should be in between 4-50 words");
-     }
-     else if(!validator.isEmail(email)){
-          throw new Error("Email is not valid");
-     }
+const validateSignUpdata = (req) => {
+    const { firstName, lastName, emailId, password, age } = req.body;
+
+    if (!firstName || firstName.length < 2 || firstName.length > 50) {
+        throw new Error("First name must be between 2 and 50 characters.");
+    }
+
+    if (!lastName || lastName.length < 2 || lastName.length > 50) {
+        throw new Error("Last name must be between 2 and 50 characters.");
+    }
+
+    if (!emailId || !validator.isEmail(emailId)) {
+        throw new Error("Email is not valid.");
+    }
+
+    if (!password || password.length < 6) {
+        throw new Error("Password must be at least 6 characters long.");
+    }
+
+    if (!age || typeof age !== "number" || age < 18 || age > 65) {
+        throw new Error("Age must be a number between 18 and 65.");
+    }
 };
 
-module.exports = {validateSignUpdata};
+const validateEditProfileData = (req)=>{
+    const allowedEditFields = [
+      "firstName",
+      "lastName",
+      "emailId",
+      "password",
+      "age"]
+
+const isEditAllowed =Object.keys(req.body).every(field=>
+   allowedEditFields.includes(field)
+);
+return isEditAllowed;
+}
+
+module.exports = { validateSignUpdata,
+   validateEditProfileData
+};

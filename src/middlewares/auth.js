@@ -21,5 +21,5 @@ req.user=user;
 }
 
 module.exports={
-    userAuth
+    userAuth,
 }

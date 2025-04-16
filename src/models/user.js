@@ -4,8 +4,28 @@ const mongoose = require("mongoose");
  const bcrypt = require("bcrypt");
 
 const userSchema = new mongoose.Schema({
-    name: {
+    firstName: {
         type: String,
+        unique:true,
+    },
+    lastName:{
+        type: String,
+    },
+    emailId: {
+        type: String,
+        required: true,
+        lowercase:true,
+        unique:true,
+        validate: {
+            validator: (value) => {
+                return validator.isEmail(value);
+            },
+            message: "Invalid Email"
+        }
+    },
+    password: {
+        type: String,
+        required: true
     },
     age: {
         type: Number,
@@ -17,23 +37,8 @@ const userSchema = new mongoose.Schema({
             message: "Sahi age daalo",
         },
     },
-    email: {
-        type: String,
-        required: true,
-        validate: {
-            validator: (value) => {
-                return validator.isEmail(value);
-            },
-            message: "Invalid Email"
-        }
-    },
-    
-    password: {
-        type: String,
-        required: true
-    },
     skill : {
-        type : String
+        type : [String]
     }
 },{
     timestamps : true,
